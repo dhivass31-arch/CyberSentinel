@@ -1,8 +1,3 @@
-# ==========================================
-# CYBERSENTINEL
-# LIVE ENDPOINT SECURITY MONITORING SYSTEM
-# ==========================================
-
 from flask import (
     Flask,
     jsonify,
@@ -37,22 +32,24 @@ from detection import detect_threat
 from datetime import datetime, timedelta
 
 import os
+from dotenv import load_dotenv
 
 
 # ==========================================
-# FLASK APPLICATION
+# LOAD ENVIRONMENT VARIABLES
+# ==========================================
+
+load_dotenv()
+
+
+# ==========================================
+# CYBERSENTINEL APPLICATION
 # ==========================================
 
 app = Flask(__name__)
 
-
-# ==========================================
-# APPLICATION CONFIGURATION
-# ==========================================
-
 app.config["SECRET_KEY"] = os.environ.get(
-    "SECRET_KEY",
-    "cybersentinel-development-secret"
+    "SECRET_KEY"
 )
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
@@ -63,14 +60,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 
 # ==========================================
-# ENABLE CORS
+# CORS
 # ==========================================
 
 CORS(app)
 
 
 # ==========================================
-# INITIALIZE DATABASE
+# DATABASE
 # ==========================================
 
 db.init_app(app)
@@ -91,21 +88,12 @@ login_manager.login_message = (
 )
 
 
-# ==========================================
-# LOGIN USER CLASS
-# ==========================================
-
 class LoginUser(UserMixin):
 
     def __init__(self, user):
-
         self.id = user.id
         self.username = user.username
 
-
-# ==========================================
-# LOAD USER
-# ==========================================
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -144,10 +132,7 @@ def index():
 # LOGIN
 # ==========================================
 
-@app.route(
-    "/login",
-    methods=["GET", "POST"]
-)
+@app.route("/login", methods=["GET", "POST"])
 def login():
 
     if request.method == "POST":
@@ -247,7 +232,9 @@ def status():
 
     for event in all_events:
 
-        devices.add(event.device)
+        devices.add(
+            event.device
+        )
 
     return jsonify({
 
@@ -276,10 +263,7 @@ def status():
 # GET SECURITY EVENTS
 # ==========================================
 
-@app.route(
-    "/api/events",
-    methods=["GET"]
-)
+@app.route("/api/events", methods=["GET"])
 @login_required
 def events():
 
@@ -314,10 +298,7 @@ def events():
 # RECEIVE SECURITY EVENT
 # ==========================================
 
-@app.route(
-    "/api/events",
-    methods=["POST"]
-)
+@app.route("/api/events", methods=["POST"])
 def add_event():
 
     # ======================================
@@ -329,9 +310,19 @@ def add_event():
     )
 
     expected_api_key = os.environ.get(
-        "CYBERSENTINEL_API_KEY",
-        "CYBERSENTINEL-DEMO-KEY-2026"
+        "CYBERSENTINEL_API_KEY"
     )
+
+    if not expected_api_key:
+
+        return jsonify({
+
+            "error": "Server configuration error",
+
+            "message":
+                "CYBERSENTINEL_API_KEY is not configured"
+
+        }), 500
 
     if api_key != expected_api_key:
 
@@ -346,7 +337,7 @@ def add_event():
 
 
     # ======================================
-    # READ JSON
+    # JSON VALIDATION
     # ======================================
 
     data = request.get_json(
@@ -365,10 +356,6 @@ def add_event():
         }), 400
 
 
-    # ======================================
-    # EXTRACT DATA
-    # ======================================
-
     device = data.get(
         "device"
     )
@@ -382,21 +369,19 @@ def add_event():
     )
 
 
-    # ======================================
-    # VALIDATION
-    # ======================================
-
     if not device:
 
         return jsonify({
             "error": "Device is required"
         }), 400
 
+
     if not event:
 
         return jsonify({
             "error": "Event is required"
         }), 400
+
 
     if not source_ip:
 
@@ -406,7 +391,7 @@ def add_event():
 
 
     # ======================================
-    # BRUTE FORCE WINDOW
+    # BRUTE FORCE ANALYSIS
     # ======================================
 
     current_time = datetime.now()
@@ -416,11 +401,6 @@ def add_event():
         timedelta(minutes=5)
     )
 
-
-    # ======================================
-    # COUNT RECENT FAILED LOGINS
-    # FROM SAME SOURCE IP
-    # ======================================
 
     recent_events = SecurityEvent.query.filter_by(
         source_ip=source_ip
@@ -443,9 +423,7 @@ def add_event():
 
         except ValueError:
 
-            # Older demo events may only
-            # contain HH:MM:SS.
-            continue
+            break
 
 
         if event_time < five_minutes_ago:
@@ -454,53 +432,53 @@ def add_event():
 
 
         previous_event_name = (
-            previous_event.event
-            .lower()
+            previous_event.event.lower()
         )
 
 
         if (
+
             "failed login"
             in previous_event_name
-            or
-            "login attempt"
+
+            or "login attempt"
             in previous_event_name
-            or
-            "authentication failure"
+
+            or "authentication failure"
             in previous_event_name
-            or
-            "authentication failed"
+
+            or "authentication failed"
             in previous_event_name
+
         ):
 
             recent_failed_attempts += 1
 
 
-    # ======================================
-    # INCLUDE CURRENT EVENT
-    # ======================================
-
     current_event = event.lower()
 
+
     if (
+
         "failed login"
         in current_event
-        or
-        "login attempt"
+
+        or "login attempt"
         in current_event
-        or
-        "authentication failure"
+
+        or "authentication failure"
         in current_event
-        or
-        "authentication failed"
+
+        or "authentication failed"
         in current_event
+
     ):
 
         recent_failed_attempts += 1
 
 
     # ======================================
-    # DETECTION ENGINE
+    # THREAT DETECTION ENGINE
     # ======================================
 
     detection = detect_threat(
@@ -511,12 +489,9 @@ def add_event():
 
         recent_failed_attempts=
             recent_failed_attempts
+
     )
 
-
-    # ======================================
-    # AUTOMATIC SEVERITY
-    # ======================================
 
     severity = detection[
         "severity"
@@ -532,7 +507,7 @@ def add_event():
 
 
     # ======================================
-    # CREATE DATABASE EVENT
+    # SAVE SECURITY EVENT
     # ======================================
 
     new_event = SecurityEvent(
@@ -552,10 +527,6 @@ def add_event():
     )
 
 
-    # ======================================
-    # SAVE TO DATABASE
-    # ======================================
-
     db.session.add(
         new_event
     )
@@ -564,10 +535,11 @@ def add_event():
 
 
     # ======================================
-    # SECURITY LOG
+    # SERVER SECURITY LOG
     # ======================================
 
     print()
+
     print(
         "------------------------------------------"
     )
@@ -658,7 +630,7 @@ def add_event():
 
 
 # ==========================================
-# DATABASE INITIALIZATION
+# INITIALIZE DATABASE
 # ==========================================
 
 with app.app_context():
@@ -716,8 +688,13 @@ if __name__ == "__main__":
 
     print()
 
+
     app.run(
+
         debug=True,
+
         host="0.0.0.0",
+
         port=5000
+
     )
