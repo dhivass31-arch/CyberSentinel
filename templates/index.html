@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CyberSentinel | SOC Dashboard</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #07111f;
+            --bg-secondary: #0b1728;
+            --card: #0e1b2d;
+            --card-hover: #12233a;
+            --border: #1b314b;
+
+            --blue: #38bdf8;
+            --blue-dark: #0284c7;
+            --cyan: #22d3ee;
+
+            --green: #22c55e;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body {
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(14, 116, 144, 0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(37, 99, 235, 0.08),
+                    transparent 30%
+                ),
+                var(--bg);
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            height: 76px;
+
+            background: rgba(8, 20, 35, 0.95);
+
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 38px;
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: rgba(56, 189, 248, 0.10);
+
+            border: 1px solid rgba(56, 189, 248, 0.25);
+
+            font-size: 21px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+
+            color: var(--blue);
+        }
+
+        .logo span {
+            color: #f8fafc;
+        }
+
+        .brand-subtitle {
+            color: var(--text-muted);
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        /* =========================
+           ONLINE STATUS
+        ========================= */
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            border-radius: 20px;
+
+            background: rgba(34, 197, 94, 0.08);
+
+            border: 1px solid rgba(34, 197, 94, 0.20);
+
+            color: #4ade80;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            letter-spacing: 0.4px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+
+            background: var(--green);
+
+            border-radius: 50%;
+
+            box-shadow:
+                0 0 0 4px rgba(34, 197, 94, 0.08),
+                0 0 12px rgba(34, 197, 94, 0.65);
+
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.45;
+            }
+        }
+
+        /* =========================
+           LOGOUT
+        ========================= */
+
+        .logout-btn {
+            background: transparent;
+
+            border: 1px solid #263b54;
+
+            color: #cbd5e1;
+
+            padding: 9px 16px;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.10);
+
+            border-color: rgba(239, 68, 68, 0.40);
+
+            color: #f87171;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .container {
+            width: 100%;
+            max-width: 1450px;
+
+            margin: auto;
+
+            padding: 38px 35px 20px;
+        }
+
+        /* =========================
+           PAGE TITLE
+        ========================= */
+
+        .title-section {
+            margin-bottom: 28px;
+        }
+
+        .eyebrow {
+            color: var(--blue);
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 9px;
+        }
+
+        .title-section h1 {
+            font-size: 30px;
+
+            font-weight: 750;
+
+            letter-spacing: -0.5px;
+
+            margin-bottom: 7px;
+        }
+
+        .title-section p {
+            color: var(--text-secondary);
+
+            font-size: 14px;
+        }
+
+        /* =========================
+           KPI CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 28px;
+        }
+
+        .card {
+            position: relative;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(17, 35, 57, 0.96),
+                    rgba(10, 25, 43, 0.96)
+                );
+
+            border: 1px solid var(--border);
+
+            border-radius: 13px;
+
+            padding: 21px;
+
+            overflow: hidden;
+
+            transition:
+                transform 0.2s,
+                border-color 0.2s,
+                background 0.2s;
+        }
+
+        .card::after {
+            content: "";
+
+            position: absolute;
+
+            width: 90px;
+            height: 90px;
+
+            right: -40px;
+            bottom: -45px;
+
+            border-radius: 50%;
+
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+
+            border-color: #2b4a68;
+
+            background: var(--card-hover);
+        }
+
+        .card-top {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            color: var(--text-secondary);
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            letter-spacing: 0.3px;
+
+            text-transform: uppercase;
+        }
+
+        .card-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+        }
+
+        .icon-blue {
+            color: var(--blue);
+
+            background:
+                rgba(56, 189, 248, 0.10);
+
+            border:
+                1px solid rgba(56, 189, 248, 0.16);
+        }
+
+        .icon-white {
+            color: #cbd5e1;
+
+            background:
+                rgba(148, 163, 184, 0.08);
+
+            border:
+                1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .icon-red {
+            color: #f87171;
+
+            background:
+                rgba(239, 68, 68, 0.10);
+
+            border:
+                1px solid rgba(239, 68, 68, 0.16);
+        }
+
+        .icon-yellow {
+            color: #fbbf24;
+
+            background:
+                rgba(245, 158, 11, 0.10);
+
+            border:
+                1px solid rgba(245, 158, 11, 0.16);
+        }
+
+        .card-value {
+            font-size: 31px;
+
+            font-weight: 750;
+
+            line-height: 1;
+        }
+
+        .card-label {
+            margin-top: 9px;
+
+            color: var(--text-muted);
+
+            font-size: 11px;
+        }
+
+        .blue {
+            color: var(--blue);
+        }
+
+        .yellow {
+            color: #fbbf24;
+        }
+
+        .red {
+            color: #f87171;
+        }
+
+        /* =========================
+           LIVE THREAT ALERTS
+        ========================= */
+
+        .alert-panel {
+            margin-bottom: 28px;
+
+            background:
+                rgba(10, 25, 43, 0.96);
+
+            border:
+                1px solid rgba(239, 68, 68, 0.22);
+
+            border-radius: 13px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .alert-header {
+            padding: 19px 23px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            border-bottom:
+                1px solid var(--border);
+        }
+
+        .alert-title {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+        .alert-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 8px;
+
+            background:
+                rgba(239, 68, 68, 0.10);
+
+            border:
+                1px solid rgba(239, 68, 68, 0.20);
+
+            color: #f87171;
+
+            font-size: 16px;
+        }
+
+        .alert-header h2 {
+            font-size: 16px;
+
+            font-weight: 700;
+        }
+
+        .alert-header p {
+            color: var(--text-muted);
+
+            font-size: 11px;
+
+            margin-top: 3px;
+        }
+
+        .alert-status {
+            color: #f87171;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+        }
+
+        .alert-list {
+            padding: 14px;
+        }
+
+        .alert-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+
+            padding: 14px 16px;
+
+            margin-bottom: 8px;
+
+            background:
+                rgba(239, 68, 68, 0.045);
+
+            border:
+                1px solid rgba(239, 68, 68, 0.12);
+
+            border-radius: 9px;
+
+            transition: 0.2s;
+        }
+
+        .alert-item:hover {
+            background:
+                rgba(239, 68, 68, 0.08);
+
+            border-color:
+                rgba(239, 68, 68, 0.25);
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-severity {
+            width: 8px;
+
+            height: 38px;
+
+            border-radius: 5px;
+
+            background: #ef4444;
+
+            box-shadow:
+                0 0 10px rgba(239, 68, 68, 0.35);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-name {
+            color: #f8fafc;
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+        .alert-details {
+            margin-top: 5px;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+        .alert-ip {
+            color: #7dd3fc;
+
+            font-family:
+                Consolas,
+                monospace;
+        }
+
+        .alert-time {
+            color: #64748b;
+
+            font-family:
+                Consolas,
+                monospace;
+
+            font-size: 10px;
+        }
+
+        .no-alerts {
+            text-align: center;
+
+            padding: 25px;
+
+            color: #64748b;
+
+            font-size: 12px;
+        }
+
+        /* =========================
+           EVENTS PANEL
+        ========================= */
+
+        .events-box {
+            background:
+                rgba(10, 25, 43, 0.96);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 13px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .events-header {
+            padding: 19px 23px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+        .events-title {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+        .events-title-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 8px;
+
+            background:
+                rgba(56, 189, 248, 0.09);
+
+            border:
+                1px solid rgba(56, 189, 248, 0.15);
+
+            color: var(--blue);
+        }
+
+        .events-header h2 {
+            font-size: 16px;
+
+            font-weight: 700;
+        }
+
+        .events-header p {
+            color: var(--text-muted);
+
+            font-size: 11px;
+
+            margin-top: 3px;
+        }
+
+        /* =========================
+           REFRESH
+        ========================= */
+
+        .refresh-btn {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            background:
+                rgba(56, 189, 248, 0.09);
+
+            border:
+                1px solid rgba(56, 189, 248, 0.25);
+
+            color: var(--blue);
+
+            padding: 9px 14px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background:
+                rgba(56, 189, 248, 0.16);
+
+            border-color:
+                rgba(56, 189, 248, 0.40);
+        }
+
+        .refresh-icon {
+            font-size: 15px;
+
+            transition: 0.25s;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 850px;
+        }
+
+        th {
+            text-align: left;
+
+            padding: 13px 18px;
+
+            color: #64748b;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+
+            background:
+                rgba(6, 17, 30, 0.65);
+
+            border-bottom:
+                1px solid var(--border);
+        }
+
+        td {
+            padding: 15px 18px;
+
+            border-bottom:
+                1px solid rgba(27, 49, 75, 0.55);
+
+            font-size: 13px;
+
+            color: #cbd5e1;
+        }
+
+        tbody tr {
+            transition: background 0.18s;
+        }
+
+        tbody tr:hover {
+            background:
+                rgba(56, 189, 248, 0.035);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .event-id {
+            color: #64748b;
+
+            font-family:
+                Consolas,
+                monospace;
+
+            font-size: 12px;
+        }
+
+        .device {
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            font-weight: 600;
+
+            color: #e2e8f0;
+        }
+
+        .device-icon {
+            width: 27px;
+            height: 27px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 6px;
+
+            background:
+                rgba(56, 189, 248, 0.08);
+
+            color: var(--blue);
+
+            font-size: 12px;
+        }
+
+        .event-name {
+            color: #e2e8f0;
+
+            font-weight: 500;
+        }
+
+        .ip {
+            font-family:
+                Consolas,
+                "Courier New",
+                monospace;
+
+            color: #7dd3fc;
+
+            font-size: 12px;
+        }
+
+        .time {
+            color: #94a3b8;
+
+            font-family:
+                Consolas,
+                monospace;
+
+            font-size: 11px;
+        }
+
+        /* =========================
+           BADGES
+        ========================= */
+
+        .badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding: 5px 9px;
+
+            border-radius: 6px;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 0.5px;
+
+            text-transform: uppercase;
+        }
+
+        .badge-dot {
+            width: 5px;
+            height: 5px;
+
+            border-radius: 50%;
+        }
+
+        .high {
+            background:
+                rgba(239, 68, 68, 0.10);
+
+            color: #f87171;
+
+            border:
+                1px solid rgba(239, 68, 68, 0.20);
+        }
+
+        .high .badge-dot {
+            background: #ef4444;
+
+            box-shadow:
+                0 0 7px rgba(239, 68, 68, 0.7);
+        }
+
+        .medium {
+            background:
+                rgba(245, 158, 11, 0.10);
+
+            color: #fbbf24;
+
+            border:
+                1px solid rgba(245, 158, 11, 0.20);
+        }
+
+        .medium .badge-dot {
+            background: #f59e0b;
+        }
+
+        .low {
+            background:
+                rgba(34, 197, 94, 0.09);
+
+            color: #4ade80;
+
+            border:
+                1px solid rgba(34, 197, 94, 0.18);
+        }
+
+        .low .badge-dot {
+            background: #22c55e;
+        }
+
+        /* =========================
+           EMPTY / ERROR
+        ========================= */
+
+        .empty {
+            text-align: center;
+
+            padding: 45px 20px;
+
+            color: var(--text-muted);
+
+            font-size: 13px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            text-align: center;
+
+            padding: 25px 20px 30px;
+
+            color: #475569;
+
+            font-size: 11px;
+
+            letter-spacing: 0.2px;
+        }
+
+        .footer span {
+            color: #64748b;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1050px) {
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .header {
+                padding: 0 18px;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+
+            .container {
+                padding: 25px 16px;
+            }
+
+            .title-section h1 {
+                font-size: 25px;
+            }
+
+            .status {
+                display: none;
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            .header {
+                height: 68px;
+            }
+
+            .logo {
+                font-size: 19px;
+            }
+
+            .brand-icon {
+                width: 34px;
+                height: 34px;
+            }
+
+            .logout-btn {
+                padding: 8px 11px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .events-header {
+                padding: 16px;
+            }
+
+            .events-header p {
+                display: none;
+            }
+
+            .refresh-btn {
+                padding: 8px 10px;
+            }
+
+            .alert-header {
+                padding: 16px;
+            }
+
+            .alert-time {
+                display: none;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🛡️
+            </div>
+
+            <div>
+
+                <div class="logo">
+                    Cyber<span>Sentinel</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    ENDPOINT SECURITY OPERATIONS
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="header-right">
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                SYSTEM ONLINE
+
+            </div>
+
+            <a
+                href="/logout"
+                class="logout-btn"
+            >
+                Logout
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="container">
+
+        <!-- TITLE -->
+
+        <section class="title-section">
+
+            <div class="eyebrow">
+                SECURITY OPERATIONS CENTER
+            </div>
+
+            <h1>
+                Security Dashboard
+            </h1>
+
+            <p>
+                Live endpoint monitoring, security event collection and threat detection
+            </p>
+
+        </section>
+
+
+        <!-- =========================
+             KPI CARDS
+        ========================== -->
+
+        <section class="stats">
+
+            <!-- DEVICES -->
+
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-title">
+                        Monitored Devices
+                    </div>
+
+                    <div class="card-icon icon-blue">
+                        🖥
+                    </div>
+
+                </div>
+
+                <div
+                    class="card-value blue"
+                    id="deviceCount"
+                >
+                    0
+                </div>
+
+                <div class="card-label">
+                    Active security endpoints
+                </div>
+
+            </div>
+
+
+            <!-- EVENTS -->
+
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-title">
+                        Security Events
+                    </div>
+
+                    <div class="card-icon icon-white">
+                        ◈
+                    </div>
+
+                </div>
+
+                <div
+                    class="card-value"
+                    id="eventCount"
+                >
+                    0
+                </div>
+
+                <div class="card-label">
+                    Events recorded in database
+                </div>
+
+            </div>
+
+
+            <!-- HIGH -->
+
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-title">
+                        High Threats
+                    </div>
+
+                    <div class="card-icon icon-red">
+                        ⚠
+                    </div>
+
+                </div>
+
+                <div
+                    class="card-value red"
+                    id="highCount"
+                >
+                    0
+                </div>
+
+                <div class="card-label">
+                    Requires security attention
+                </div>
+
+            </div>
+
+
+            <!-- MEDIUM -->
+
+            <div class="card">
+
+                <div class="card-top">
+
+                    <div class="card-title">
+                        Medium Threats
+                    </div>
+
+                    <div class="card-icon icon-yellow">
+                        !
+                    </div>
+
+                </div>
+
+                <div
+                    class="card-value yellow"
+                    id="mediumCount"
+                >
+                    0
+                </div>
+
+                <div class="card-label">
+                    Monitoring recommended
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             LIVE THREAT ALERTS
+        ========================== -->
+
+        <section class="alert-panel">
+
+            <div class="alert-header">
+
+                <div class="alert-title">
+
+                    <div class="alert-icon">
+                        ⚠
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Live Threat Alerts
+                        </h2>
+
+                        <p>
+                            Active high-severity security detections
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="alert-status">
+                    ● MONITORING
+                </div>
+
+            </div>
+
+            <div
+                class="alert-list"
+                id="alertList"
+            >
+
+                <div class="no-alerts">
+                    Monitoring for security threats...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             SECURITY EVENTS
+        ========================== -->
+
+        <section class="events-box">
+
+            <div class="events-header">
+
+                <div class="events-title">
+
+                    <div class="events-title-icon">
+                        ◉
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            Security Events
+                        </h2>
+
+                        <p>
+                            Endpoint activity detected by CyberSentinel
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="refresh-btn"
+                    onclick="loadEvents()"
+                >
+
+                    <span
+                        class="refresh-icon"
+                        id="refreshIcon"
+                    >
+                        ↻
+                    </span>
+
+                    Refresh
+
+                </button>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Device
+                            </th>
+
+                            <th>
+                                Security Event
+                            </th>
+
+                            <th>
+                                Source IP
+                            </th>
+
+                            <th>
+                                Severity
+                            </th>
+
+                            <th>
+                                Detected Time
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="eventsTable">
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty"
+                            >
+                                Loading security events...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        CyberSentinel © 2026
+
+        <span>
+            | Endpoint Security Monitoring & Threat Detection
+        </span>
+
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+        /* =========================
+           LIVE THREAT ALERTS
+        ========================== */
+
+        function updateThreatAlerts(events) {
+
+            const alertList =
+                document.getElementById("alertList");
+
+            const highAlerts =
+                events
+                    .filter(event =>
+                        event.severity &&
+                        event.severity.toLowerCase() === "high"
+                    )
+                    .slice(0, 5);
+
+
+            if (highAlerts.length === 0) {
+
+                alertList.innerHTML = `
+                    <div class="no-alerts">
+                        ✓ No active high-severity threats detected.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            alertList.innerHTML = "";
+
+
+            highAlerts.forEach(event => {
+
+                const alert =
+                    document.createElement("div");
+
+                alert.className =
+                    "alert-item";
+
+
+                alert.innerHTML = `
+
+                    <div class="alert-severity"></div>
+
+                    <div class="alert-content">
+
+                        <div class="alert-name">
+                            ${escapeHtml(event.event)}
+                        </div>
+
+                        <div class="alert-details">
+
+                            Device:
+                            <strong>
+                                ${escapeHtml(event.device)}
+                            </strong>
+
+                            &nbsp; | &nbsp;
+
+                            Source:
+                            <span class="alert-ip">
+                                ${escapeHtml(event.source_ip)}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="alert-time">
+                        ${escapeHtml(event.time)}
+                    </div>
+
+                `;
+
+
+                alertList.appendChild(alert);
+
+            });
+
+        }
+
+
+        /* =========================
+           BASIC HTML SAFETY
+        ========================== */
+
+        function escapeHtml(value) {
+
+            if (value === null ||
+                value === undefined) {
+
+                return "";
+            }
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* =========================
+           LOAD SECURITY EVENTS
+        ========================== */
+
+        async function loadEvents() {
+
+            const refreshIcon =
+                document.getElementById(
+                    "refreshIcon"
+                );
+
+
+            refreshIcon.style.display =
+                "inline-block";
+
+
+            refreshIcon.style.transform =
+                "rotate(180deg)";
+
+
+            try {
+
+                const response =
+                    await fetch("/api/events");
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to fetch events"
+                    );
+
+                }
+
+
+                const events =
+                    await response.json();
+
+
+                /* =====================
+                   LIVE THREAT ALERTS
+                ====================== */
+
+                updateThreatAlerts(events);
+
+
+                /* =====================
+                   TOTAL EVENTS
+                ====================== */
+
+                document.getElementById(
+                    "eventCount"
+                ).textContent =
+                    events.length;
+
+
+                /* =====================
+                   UNIQUE DEVICES
+                ====================== */
+
+                const devices = [
+                    ...new Set(
+                        events.map(
+                            event => event.device
+                        )
+                    )
+                ];
+
+
+                document.getElementById(
+                    "deviceCount"
+                ).textContent =
+                    devices.length;
+
+
+                /* =====================
+                   HIGH THREATS
+                ====================== */
+
+                const highThreats =
+                    events.filter(
+                        event =>
+                            event.severity &&
+                            event.severity
+                                .toLowerCase() === "high"
+                    ).length;
+
+
+                /* =====================
+                   MEDIUM THREATS
+                ====================== */
+
+                const mediumThreats =
+                    events.filter(
+                        event =>
+                            event.severity &&
+                            event.severity
+                                .toLowerCase() === "medium"
+                    ).length;
+
+
+                document.getElementById(
+                    "highCount"
+                ).textContent =
+                    highThreats;
+
+
+                document.getElementById(
+                    "mediumCount"
+                ).textContent =
+                    mediumThreats;
+
+
+                /* =====================
+                   TABLE
+                ====================== */
+
+                const table =
+                    document.getElementById(
+                        "eventsTable"
+                    );
+
+
+                table.innerHTML = "";
+
+
+                if (events.length === 0) {
+
+                    table.innerHTML = `
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty"
+                            >
+                                No security events detected.
+                            </td>
+
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+
+                /* =====================
+                   EVENT ROWS
+                ====================== */
+
+                events.forEach(event => {
+
+                    const severity =
+                        event.severity
+                            ? event.severity.toLowerCase()
+                            : "low";
+
+
+                    let badgeClass =
+                        "low";
+
+
+                    if (severity === "high") {
+
+                        badgeClass =
+                            "high";
+
+                    }
+                    else if (
+                        severity === "medium"
+                    ) {
+
+                        badgeClass =
+                            "medium";
+
+                    }
+
+
+                    const row =
+                        document.createElement("tr");
+
+
+                    row.innerHTML = `
+
+                        <td>
+
+                            <span class="event-id">
+
+                                #${escapeHtml(event.id)}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="device">
+
+                                <span class="device-icon">
+                                    🖥
+                                </span>
+
+                                ${escapeHtml(event.device)}
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="event-name">
+
+                                ${escapeHtml(event.event)}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="ip">
+
+                                ${escapeHtml(event.source_ip)}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="badge ${badgeClass}"
+                            >
+
+                                <span class="badge-dot"></span>
+
+                                ${escapeHtml(event.severity)}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="time">
+
+                                ${escapeHtml(event.time)}
+
+                            </span>
+
+                        </td>
+
+                    `;
+
+
+                    table.appendChild(row);
+
+                });
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "CyberSentinel error:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "eventsTable"
+                ).innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="empty"
+                        >
+
+                            Unable to load security events.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+
+                document.getElementById(
+                    "alertList"
+                ).innerHTML = `
+
+                    <div class="no-alerts">
+
+                        Unable to load threat alerts.
+
+                    </div>
+
+                `;
+
+            }
+
+
+            finally {
+
+                setTimeout(() => {
+
+                    refreshIcon.style.transform =
+                        "rotate(0deg)";
+
+                }, 250);
+
+            }
+
+        }
+
+
+        /* =========================
+           INITIAL LOAD
+        ========================== */
+
+        loadEvents();
+
+
+        /* =========================
+           AUTO REFRESH
+           EVERY 10 SECONDS
+        ========================== */
+
+        setInterval(
+            loadEvents,
+            10000
+        );
+
+    </script>
+
+</body>
+
+</html>

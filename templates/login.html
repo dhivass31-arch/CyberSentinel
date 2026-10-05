@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CyberSentinel - Login</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0b1120;
+            color: white;
+        }
+
+        .login-box {
+            width: 400px;
+            padding: 40px;
+            background: #111827;
+            border: 1px solid #263244;
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-top: 8px;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d1d5db;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 20px;
+            border-radius: 7px;
+            border: 1px solid #374151;
+            background: #0b1120;
+            color: white;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .error {
+            background: #451a1a;
+            border: 1px solid #7f1d1d;
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .demo {
+            margin-top: 20px;
+            padding: 12px;
+            background: #0b1120;
+            border-radius: 7px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <div class="logo">🔐</div>
+
+        <h1>CyberSentinel</h1>
+
+        <p class="subtitle">
+            Security Operations Login
+        </p>
+
+        {% with messages = get_flashed_messages() %}
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div class="error">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST">
+
+            <label>Username</label>
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Enter username"
+                required
+            >
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                required
+            >
+
+            <button type="submit">
+                🔑 Secure Login
+            </button>
+
+        </form>
+
+
+        <div class="demo">
+
+            Demo Account<br>
+
+            Username: <b>admin</b><br>
+
+            Password: <b>Cyber@12345</b>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
